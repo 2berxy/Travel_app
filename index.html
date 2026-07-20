@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Journal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { cyber: ['Orbitron', 'sans-serif'], sans: ['Plus Jakarta Sans', 'sans-serif'], },
+                    colors: {
+                        cyberdark: { DEFAULT: '#030712', card: '#0B132B', border: '#1C2541' },
+                        cyberlight: { DEFAULT: '#F8FAFC', card: '#FFFFFF', border: '#E2E8F0' },
+                        primary: { 
+                            50: '#E6FFF8', 
+                            100: '#CCFFF1', 
+                            200: '#99FFE3', 
+                            300: '#66FFD5', 
+                            400: '#33FFC6', 
+                            500: '#00FFB7', // Base Color
+                            600: '#00CC92', 
+                            700: '#00996E',
+                            800: '#006649',
+                            900: '#003325', 
+                        }
+                    },
+                    boxShadow: { 
+                        'neon-primary': '0 0 15px rgba(0, 255, 183, 0.5)', 
+                        'neon-glow': '0 0 25px rgba(0, 255, 183, 0.25)', 
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.3s ease, color 0.3s ease; }
+        .cyber-title { font-family: 'Orbitron', sans-serif; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        .dark ::-webkit-scrollbar-thumb { background: #1C2541; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-cyberlight text-slate-800 dark:bg-cyberdark dark:text-slate-50 min-h-screen antialiased selection:bg-primary-500 selection:text-slate-900">
+
+    <nav class="sticky top-0 z-40 border-b border-cyberlight-border bg-cyberlight/80 dark:border-cyberdark-border dark:bg-cyberdark/80 backdrop-blur-md transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-2">
+                    <div class="w-9 h-9 bg-gradient-to-tr from-primary-600 to-primary-400 rounded-lg flex items-center justify-center text-slate-900 shadow-neon-primary animate-pulse">
+                        <i data-lucide="compass" class="w-5 h-5"></i>
+                    </div>
+                    <span class="cyber-title text-xl font-black tracking-widest bg-gradient-to-r from-slate-900 to-primary-600 dark:from-white dark:to-primary-400 bg-clip-text text-transparent">Travel Journal✈️</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="authBtn" onclick="toggleAuthView()" class="flex items-center space-x-2 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider border border-cyberlight-border dark:border-cyberdark-border rounded-md hover:border-primary-400 dark:hover:border-primary-400 transition-all">
+                        <i data-lucide="user" class="w-4 h-4 text-primary-500"></i>
+                        <span id="authStatusText">ลงชื่อเข้าใช้</span>
+                    </button>
+                    <button onclick="openJournalForm()" class="bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 text-slate-900 font-bold px-4 py-2 rounded-lg text-sm flex items-center space-x-2 transition-all duration-300 hover:shadow-neon-primary">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                        <span class="hidden sm:inline">บันทึกทริปใหม่</span>
+                    </button>
+                    <button onclick="toggleTheme()" class="p-2 border border-cyberlight-border dark:border-cyberdark-border rounded-lg text-slate-500 dark:text-slate-400 hover:text-primary-500 dark:hover:text-primary-400 transition-colors">
+                        <i id="themeIcon" data-lucide="moon" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-bold tracking-tight mb-2 cyber-title">Travel Dashboard🧳</h1>
+                <p class="text-slate-500 dark:text-slate-400 text-sm">กระดานรวมมิตรบันทึกการเดินทางในระบบเครือข่ายความร่วมมือ</p>
+            </div>
+            <div class="flex items-center space-x-3 bg-cyberlight-card dark:bg-cyberdark-card border border-cyberlight-border dark:border-cyberdark-border p-3 rounded-xl">
+                <div class="text-center px-3 border-r border-cyberlight-border dark:border-cyberdark-border">
+                    <div class="text-xs text-slate-400 uppercase">Total Entries</div>
+                    <div class="text-xl font-bold text-primary-500 font-cyber" id="statTotal">-</div>
+                </div>
+                <div class="text-center px-2">
+                    <div class="text-xs text-slate-400 uppercase">Active Users</div>
+                    <div class="text-xl font-bold font-cyber" id="statUsers">-</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-cyberlight-card dark:bg-cyberdark-card border border-cyberlight-border dark:border-cyberdark-border rounded-xl p-4 mb-6 shadow-sm transition-all duration-300">
+            <div class="flex flex-col sm:flex-row gap-4">
+                <div class="relative flex-1">
+                    <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
+                    <input type="text" id="searchInput" oninput="handleSearch()" placeholder="ค้นหาบันทึกการเดินทางด้วย ชื่อทริป, สถานที่ หรือผู้บันทึก..." 
+                           class="w-full pl-10 pr-4 py-2.5 bg-slate-100 dark:bg-cyberdark/60 border border-cyberlight-border dark:border-cyberdark-border rounded-lg focus:outline-none focus:border-primary-500 dark:focus:border-primary-400 focus:ring-1 focus:ring-primary-400 transition-all text-sm">
+                </div>
+                <div class="flex gap-2">
+                    <select id="statusFilter" onchange="handleSearch()" class="bg-slate-100 dark:bg-cyberdark/60 border border-cyberlight-border dark:border-cyberdark-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary-500">
+                        <option value="ALL">สถานะทั้งหมด</option>
+                        <option value="Public">Public (สาธารณะ)</option>
+                        <option value="Private">Private (ส่วนตัว)</option>
+                    </select>
+                    <button onclick="fetchNetworkData()" class="p-2.5 bg-slate-100 dark:bg-cyberdark/60 border border-cyberlight-border dark:border-cyberdark-border rounded-lg hover:text-primary-500 transition-colors">
+                        <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-cyberlight-card dark:bg-cyberdark-card border border-cyberlight-border dark:border-cyberdark-border rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-neon-glow">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-cyberlight-border dark:border-cyberdark-border bg-slate-50 dark:bg-cyberdark/40 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                            <th class="px-6 py-4 w-64">ข้อมูลผู้บันทึก</th>
+                            <th class="px-6 py-4">ชื่อทริปและการเดินทาง</th>
+                            <th class="px-6 py-4 hidden md:table-cell">พิกัด / สถานที่</th>
+                            <th class="px-6 py-4 hidden lg:table-cell">ภาพหลักฐาน</th>
+                            <th class="px-6 py-4 text-center">การตอบรับ</th>
+                            <th class="px-6 py-4 text-right">การจัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="journalTableBody" class="divide-y divide-cyberlight-border dark:divide-cyberdark-border text-sm">
+                        <!-- Data will be injected here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- AUTHENTICATION FORM -->
+    <div id="authOverlay" class="fixed inset-0 z-50 bg-cyberdark/90 backdrop-blur-lg hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="w-full max-w-md bg-cyberlight-card dark:bg-cyberdark-card border border-cyberlight-border dark:border-cyberdark-border rounded-2xl p-8 shadow-neon-glow relative my-auto">
+            <button onclick="closeAuthForm()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold font-cyber tracking-wide text-primary-400" id="authFormTitle">USER_LOGIN</h2>
+                <p class="text-xs text-slate-400 mt-1" id="authFormDesc">เข้าสู่ระบบเครือข่ายเพื่อจัดการข้อมูลบันทึกการเดินทาง</p>
+            </div>
+            <form id="authForm" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+                <div id="registerNameGroup" class="hidden">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Full Name</label>
+                    <input type="text" id="authFullName" placeholder="สมชาย เดินทาง" class="w-full px-4 py-2 bg-slate-100 dark:bg-cyberdark border border-cyberlight-border dark:border-cyberdark-border rounded-lg focus:outline-none focus:border-primary-500 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Email Address</label>
+                    <input type="email" id="authEmail" required placeholder="somchai@travel.com" class="w-full px-4 py-2 bg-slate-100 dark:bg-cyberdark border border-cyberlight-border dark:border-cyberdark-border rounded-lg focus:outline-none focus:border-primary-500 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Password</label>
+                    <input type="password" id="authPassword" required placeholder="••••••••" class="w-full px-4 py-2 bg-slate-100 dark:bg-cyberdark border border-cyberlight-border dark:border-cyberdark-border rounded-lg focus:outline-none focus:border-primary-500 text-sm">
+                </div>
+                <div id="registerAvatarGroup" class="hidden">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Avatar Profile (Image File)</label>
+                    <div class="mt-1 flex items-center justify-center px-6 pt-5 pb-6 border-2 border-dashed border-cyberlight-border dark:border-cyberdark-border rounded-lg hover:border-primary-400 transition-colors relative">
+                        <div class="space-y-1 text-center">
+                            <i data-lucide="image" class="mx-auto h-8 w-8 text-slate-400"></i>
+                            <div class="flex text-xs text-slate-400 text-center justify-center">
+                                <label for="authAvatarFile" class="relative cursor-pointer rounded-md font-medium text-primary-400 hover:text-primary-300">
+                                    <span>อัปโหลดรูปโปรไฟล์</span>
+                                    <input id="authAvatarFile" type="file" accept="image/*" class="sr-only" onchange="updateFileLabel(this, 'authAvatarFileLabel')">
+                                </label>
+                            </div>
+                            <p class="text-2xs text-slate-500" id="authAvatarFileLabel">PNG, JPG ขนาดไม่เกิน 2MB</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="pt-2">
+                    <button type="submit" id="authSubmitBtn" class="w-full bg-gradient-to-r from-primary-600 to-primary-500 text-slate-900 font-bold py-2.5 rounded-lg text-sm hover:from-primary-500 hover:to-primary-400 transition-all shadow-neon-primary font-cyber tracking-widest">
+                        Login
+                    </button>
+                </div>
+                <div class="text-center mt-4 text-xs">
+                    <span class="text-slate-400" id="authSwitchPrompt">ยังไม่มีบัญชีผู้ใช้งานใช่หรือไม่?</span>
+                    <button type="button" onclick="toggleAuthMode()" id="authSwitchBtn" class="text-primary-400 hover:text-primary-300 font-semibold ml-1 underline focus:outline-none">สมัครสมาชิกใหม่</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JOURNAL FORM -->
+    <div id="journalOverlay" class="fixed inset-0 z-50 bg-cyberdark/95 backdrop-blur-xl hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="w-full max-w-2xl bg-cyberlight-card dark:bg-cyberdark-card border border-cyberlight-border dark:border-cyberdark-border rounded-2xl p-6 sm:p-8 shadow-neon-glow relative my-auto">
+            <button onclick="closeJournalForm()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1 transition-colors">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            <div class="mb-6">
+                <span class="text-xs font-cyber tracking-widest text-primary-400 font-bold block mb-1">Travel_Add</span>
+                <h2 class="text-2xl font-bold tracking-tight">บันทึกประวัติการเดินทางใหม่</h2>
+                <p class="text-slate-400 text-xs mt-0.5">กรอกข้อมูลทริปท่องเที่ยวเพื่ออัปโหลดไฟล์และบันทึกพิกัดลงแผ่นงาน</p>
+            </div>
+            <form id="journalForm" onsubmit="handleJournalSubmit(event)" class="space-y-5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Trip Title</label>
+                        <input type="text" id="journalTitle" required placeholder="ชื่อทริปสุดคูล" class="w-full px-4 py-2 bg-slate-100 dark:bg-cyberdark border border-cyberlight-border dark:border-cyberdark-border rounded-lg focus:outline-none focus:border-primary-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Location</label>
+                        <input type="text" id="journalLocation" required placeholder="จังหวัด, ประเทศ หรือพิกัด" class="w-full px-4 py-2 bg-slate-100 dark:bg-cyberdark border border-cyberlight-border dark:border-cyberdark-border rounded-lg focus:outline-none focus:border-primary-500 text-sm">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Travel Date</label>
+                        <input type="date" id="journalDate" required class="w-full px-4 py-2 bg-slate-100 dark:bg-cyberdark border border-cyberlight-border dark:border-cyberdark-border rounded-lg focus:outline-none focus:border-primary-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Sharing Status</label>
+                        <select id="journalStatus" class="w-full px-4 py-2 bg-slate-100 dark:bg-cyberdark border border-cyberlight-border dark:border-cyberdark-border rounded-lg focus:outline-none focus:border-primary-500 text-sm">
+                            <option value="Public">Public (แบ่งปันบนกระดานรวมมิตร)</option>
+                            <option value="Private">Private (ดูได้ส่วนตัว)</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Story & Memory</label>
+                    <textarea id="journalStory" rows="4" required placeholder="บอกเล่าความทรงจำ การเดินทาง และความประทับใจ..." class="w-full px-4 py-2 bg-slate-100 dark:bg-cyberdark border border-cyberlight-border dark:border-cyberdark-border rounded-lg focus:outline-none focus:border-primary-500 text-sm resize-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Evidence / Travel Media (Upload to Drive)</label>
+                    <div class="mt-1 flex items-center justify-center px-6 pt-6 pb-6 border-2 border-dashed border-cyberlight-border dark:border-cyberdark-border rounded-xl hover:border-primary-400 transition-all relative bg-slate-50 dark:bg-cyberdark/40">
+                        <div class="space-y-2 text-center">
+                            <div class="mx-auto h-10 w-10 rounded-full bg-primary-500/10 flex items-center justify-center text-primary-400">
+                                <i data-lucide="cloud-upload" class="h-6 w-6"></i>
+                            </div>
+                            <div class="flex text-sm text-slate-400 justify-center">
+                                <label for="journalFile" class="relative cursor-pointer rounded-md font-semibold text-primary-400 hover:text-primary-300">
+                                    <span>คลิกเพื่อเลือกไฟล์หลักฐานการท่องเที่ยว</span>
+                                    <input id="journalFile" type="file" class="sr-only" onchange="updateFileLabel(this, 'journalFileLabel')">
+                                </label>
+                            </div>
+                            <p class="text-xs text-slate-500" id="journalFileLabel">รอการเลือกรูปภาพ เอกสาร หรือตั๋วเดินทาง</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-end space-x-3 pt-4 border-t border-cyberlight-border dark:border-cyberdark-border">
+                    <button type="button" onclick="closeJournalForm()" class="px-4 py-2 border border-cyberlight-border dark:border-cyberdark-border rounded-lg text-sm font-medium hover:bg-slate-100 dark:hover:bg-cyberdark-border transition-colors">ยกเลิก</button>
+                    <button type="submit" id="journalSubmitBtn" class="bg-gradient-to-r from-primary-600 to-primary-500 text-slate-900 font-bold px-6 py-2 rounded-lg text-sm hover:from-primary-500 hover:to-primary-400 transition-all shadow-neon-primary font-cyber tracking-widest">
+                        ยืนยัน
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN CONTROL JAVASCRIPT -->
+    <script>
+        // ==========================================
+        // SYSTEM CONFIGURATION & STATE
+        // ==========================================
+        const API_URL = "https://script.google.com/macros/s/AKfycby6u16KAUV5toVUPbK4fHZhKR0pSmFdcz9yYrf7DyJKl85Mutu2MXBbyhXrbdnJOLWFTg/exec";
+        
+        let dbUsers = [];
+        let dbJournals = [];
+        let currentUser = null; 
+        let authMode = "LOGIN"; 
+
+        document.addEventListener("DOMContentLoaded", () => {
+            lucide.createIcons();
+            fetchNetworkData();
+        });
+
+        async function fetchNetworkData() {
+            renderSkeletonLoader(); 
+            try {
+                const userRes = await fetch(API_URL + "?action=getUsers");
+                const userData = await userRes.json();
+                if (userData.success) dbUsers = userData.data;
+
+                const journalRes = await fetch(API_URL + "?action=getJournals");
+                const journalData = await journalRes.json();
+                if (journalData.success) {
+                    dbJournals = journalData.data.reverse(); 
+                }
+
+                loadTableData();
+                updateSessionUI();
+            } catch (error) {
+                console.error("Fetch Error:", error);
+                document.getElementById("journalTableBody").innerHTML = `
+                    <tr><td colspan="6" class="text-center py-12 text-rose-500">
+                        <i data-lucide="wifi-off" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
+                        การเชื่อมต่อฐานข้อมูลล้มเหลว โปรดตรวจสอบ Console 
+                    </td></tr>`;
+                lucide.createIcons();
+            }
+        }
+
+        // 🔥 แก้ไขบั๊กตัวอักษรพิมพ์ผิด (skeletons) ที่ทำให้เว็บพังตอนโหลด
+        function renderSkeletonLoader() {
+            const tbody = document.getElementById("journalTableBody");
+            let skeletons = "";
+            for (let i = 0; i < 4; i++) {
+                skeletons += `
+                    <tr class="animate-pulse bg-slate-50/20 dark:bg-cyberdark-card/20">
+                        <td class="px-6 py-4"><div class="flex space-x-3"><div class="w-9 h-9 bg-slate-200 dark:bg-cyberdark-border rounded-full"></div><div class="space-y-2 pt-1"><div class="h-3 w-24 bg-slate-200 dark:bg-cyberdark-border rounded"></div><div class="h-2 w-16 bg-slate-200 dark:bg-cyberdark-border rounded"></div></div></div></td>
+                        <td class="px-6 py-4"><div class="space-y-2"><div class="h-4 w-32 bg-slate-200 dark:bg-cyberdark-border rounded"></div><div class="h-3 w-48 bg-slate-200 dark:bg-cyberdark-border rounded"></div></div></td>
+                        <td class="px-6 py-4 hidden md:table-cell"><div class="h-3 w-24 bg-slate-200 dark:bg-cyberdark-border rounded"></div></td>
+                        <td class="px-6 py-4 hidden lg:table-cell"><div class="w-12 h-12 bg-slate-200 dark:bg-cyberdark-border rounded"></div></td>
+                        <td class="px-6 py-4"><div class="h-6 w-12 bg-slate-200 dark:bg-cyberdark-border rounded-full mx-auto"></div></td>
+                        <td class="px-6 py-4"><div class="h-4 w-16 bg-slate-200 dark:bg-cyberdark-border rounded ml-auto"></div></td>
+                    </tr>`;
+            }
+            tbody.innerHTML = skeletons;
+            document.getElementById("statTotal").innerText = "---";
+            document.getElementById("statUsers").innerText = "---";
+        }
+
+        function extractDriveId(url) {
+            if (!url) return null;
+            if (url.includes("id=")) return url.split("id=")[1].split("&")[0];
+            if (url.includes("/d/")) return url.split("/d/")[1].split("/")[0];
+            return null;
+        }
+
+        function loadTableData(filteredData = null) {
+            const tableBody = document.getElementById("journalTableBody");
+            const dataToRender = filteredData || dbJournals;
+
+            document.getElementById("statTotal").innerText = dbJournals.length;
+            document.getElementById("statUsers").innerText = dbUsers.length;
+
+            if (dataToRender.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-400">ไม่พบข้อมูลประวัติการเดินทาง</td></tr>`;
+                return;
+            }
+
+            tableBody.innerHTML = dataToRender.map(journal => {
+                const author = dbUsers.find(u => u.UserID === journal.UserID) || { FullName: "Unknown Explorer", AvatarURL: "" };
+                const dateFmt = journal.Timestamp ? String(journal.Timestamp).split('T')[0].split(' ')[0] : 'N/A';
+                
+                let finalJournalImg = journal.FileURL;
+                let driveId = journal.DriveFileID || extractDriveId(journal.FileURL);
+                if (driveId) {
+                    finalJournalImg = `https://drive.google.com/thumbnail?id=${driveId}&sz=w800`;
+                }
+                
+                let finalAvatarImg = author.AvatarURL;
+                let avatarDriveId = extractDriveId(author.AvatarURL);
+                if (avatarDriveId) {
+                    finalAvatarImg = `https://drive.google.com/thumbnail?id=${avatarDriveId}&sz=w200`;
+                }
+
+                const uiAvatarFallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(author.FullName)}&background=random&color=fff`;
+
+                return `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-cyberdark-card/50 transition-colors duration-200 group">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center space-x-3">
+                                <img class="h-9 w-9 rounded-full object-cover border border-slate-200 dark:border-cyberdark-border group-hover:border-primary-400 transition-colors" 
+                                     src="${finalAvatarImg || uiAvatarFallback}" 
+                                     referrerpolicy="no-referrer"
+                                     onerror="this.src='${uiAvatarFallback}'"
+                                     alt="">
+                                <div>
+                                    <div class="font-medium text-slate-900 dark:text-slate-200">${author.FullName}</div>
+                                    <div class="text-xs text-slate-400">${dateFmt}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="font-semibold text-primary-600 dark:text-primary-400">${journal.TripTitle}</div>
+                            <div class="text-xs text-slate-500 dark:text-slate-400 max-w-xs truncate">${journal.Story}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap hidden md:table-cell">
+                            <div class="flex items-center text-slate-500 dark:text-slate-400">
+                                <i data-lucide="map-pin" class="w-4 h-4 mr-1 text-slate-400"></i>
+                                <span>${journal.Location}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap hidden lg:table-cell">
+                            ${finalJournalImg ? `
+                                <a href="${journal.FileURL}" target="_blank" class="block relative w-12 h-12 rounded overflow-hidden border border-cyberdark-border hover:border-primary-400 transition-all bg-slate-100 dark:bg-cyberdark">
+                                    <img src="${finalJournalImg}" 
+                                         referrerpolicy="no-referrer"
+                                         class="w-full h-full object-cover" 
+                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"/>
+                                    <div style="display:none;" class="absolute inset-0 items-center justify-center text-2xs text-slate-400">คลิกดูรูป</div>
+                                </a>
+                            ` : `<span class="text-xs text-slate-500">ไม่มีไฟล์แนบ</span>`}
+                        </td>
+                        <td class="px-6 py-4 text-center whitespace-nowrap">
+                            <button onclick="alert('ฟีเจอร์ Like รออัปเดต API หลังบ้านในเฟสต่อไป')" class="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-slate-100 dark:bg-cyberdark hover:bg-primary-500/10 hover:text-primary-400 transition-all text-xs">
+                                <i data-lucide="heart" class="w-3.5 h-3.5 text-rose-500 fill-rose-500"></i>
+                                <span class="font-semibold font-cyber">${journal.LikeCount || 0}</span>
+                            </button>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-xs font-medium">
+                            <div class="flex items-center justify-end space-x-2">
+                                <span class="px-2 py-0.5 text-2xs uppercase tracking-wider rounded border ${journal.Status === 'Public' ? 'border-emerald-500/30 text-emerald-400 bg-emerald-500/5' : 'border-amber-500/30 text-amber-400 bg-amber-500/5'}">${journal.Status}</span>
+                                ${currentUser && currentUser.UserID === journal.UserID ? `
+                                    <button onclick="deleteJournal('${journal.JournalID}', '${driveId || ''}')" class="text-slate-400 hover:text-rose-400 p-1 transition-colors">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        // ==========================================
+        // UI & EVENT HANDLERS
+        // ==========================================
+        
+        async function deleteJournal(journalId, driveFileId) {
+            if (!currentUser) return;
+            
+            const isConfirm = confirm("คุณต้องการลบบันทึกการเดินทางนี้ใช่หรือไม่?\n(หากมีไฟล์รูปใน Drive ไฟล์จะถูกย้ายลงถังขยะด้วย)");
+            if (!isConfirm) return;
+
+            const payload = {
+                action: "deleteJournal",
+                userId: currentUser.UserID, 
+                journalId: journalId,
+                driveFileId: driveFileId
+            };
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain" },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    alert("ลบโพสต์ออกจากฐานข้อมูลเรียบร้อยแล้ว");
+                    dbJournals = dbJournals.filter(j => j.JournalID !== journalId);
+                    loadTableData(); 
+                } else {
+                    alert(result.message);
+                }
+            } catch (e) {
+                alert("Network Error: " + e.message);
+            }
+        }
+
+        function updateFileLabel(fileInput, labelId) {
+            const file = fileInput.files[0];
+            const labelElement = document.getElementById(labelId);
+            if (file && labelElement) {
+                labelElement.innerText = `เตรียมไฟล์: ${file.name} (${(file.size/1024).toFixed(1)} KB)`;
+                labelElement.classList.add("text-primary-500");
+            }
+        }
+
+        function toggleAuthMode() {
+            const title = document.getElementById("authFormTitle");
+            const desc = document.getElementById("authFormDesc");
+            const submitBtn = document.getElementById("authSubmitBtn");
+            const switchPrompt = document.getElementById("authSwitchPrompt");
+            const switchBtn = document.getElementById("authSwitchBtn");
+            const nameGroup = document.getElementById("registerNameGroup");
+            const avatarGroup = document.getElementById("registerAvatarGroup");
+            const nameInput = document.getElementById("authFullName");
+
+            if (authMode === "LOGIN") {
+                authMode = "REGISTER";
+                title.innerText = "NEW_USER";
+                desc.innerText = "สมัครสมาชิกเพื่อสร้างข้อมูลและเปิดสิทธิ์เก็บหลักฐานบนคลาวด์";
+                submitBtn.innerText = "REGISTER";
+                switchPrompt.innerText = "เป็นสมาชิกระบบเครือข่ายอยู่แล้ว?";
+                switchBtn.innerText = "เข้าสู่ระบบ";
+                nameGroup.classList.remove("hidden");
+                avatarGroup.classList.remove("hidden");
+                nameInput.required = true;
+            } else {
+                authMode = "LOGIN";
+                title.innerText = "USER_LOGIN";
+                desc.innerText = "เข้าสู่ระบบเครือข่ายเพื่อจัดการข้อมูลบันทึกการเดินทาง";
+                submitBtn.innerText = "Login";
+                switchPrompt.innerText = "ยังไม่มีบัญชีผู้ใช้งานใช่หรือไม่?";
+                switchBtn.innerText = "สมัครสมาชิกใหม่";
+                nameGroup.classList.add("hidden");
+                avatarGroup.classList.add("hidden");
+                nameInput.required = false;
+            }
+        }
+
+        // 🔥 แก้ไขระบบ Login ให้ครอบคลุมความผิดพลาดเรื่องช่องว่างและตัวพิมพ์เล็ก/ใหญ่
+        async function handleAuthSubmit(event) {
+            event.preventDefault();
+            const btn = document.getElementById("authSubmitBtn");
+            const oriText = btn.innerText;
+            
+            const inputEmail = document.getElementById("authEmail").value.trim().toLowerCase();
+            const inputPassword = document.getElementById("authPassword").value;
+            const hashedInputPassword = btoa(inputPassword); 
+            btn.disabled = true;
+
+            if (authMode === "LOGIN") {
+                btn.innerText = "AUTHENTICATING...";
+                
+                const matchedUser = dbUsers.find(u => {
+                    const dbEmail = String(u.Email || "").trim().toLowerCase();
+                    return dbEmail === inputEmail && String(u.PasswordHash) === hashedInputPassword;
+                });
+                
+                console.log("--- 🔍 เช็คข้อมูล Login ---");
+                console.log("คุณพิมพ์อีเมลมาว่า: '" + inputEmail + "'");
+                console.log("คุณพิมพ์รหัสผ่านเป็น Hash: '" + hashedInputPassword + "'");
+                console.log("อีเมลทั้งหมดที่มีในฐานข้อมูลตอนนี้:", dbUsers.map(u => u.Email));
+                console.log("-----------------------");
+
+                if (matchedUser) {
+                    currentUser = {
+                        UserID: matchedUser.UserID,
+                        FullName: matchedUser.FullName,
+                        AvatarURL: matchedUser.AvatarURL
+                    };
+                    alert(`เข้าสู่ระบบสำเร็จ! ยินดีต้อนรับกลับครับคุณ ${currentUser.FullName}`);
+                    document.getElementById("authForm").reset();
+                    closeAuthForm();
+                    updateSessionUI();
+                    loadTableData();
+                } else {
+                    alert("ความล้มเหลวในการตรวจสอบสิทธิ์: อีเมลหรือรหัสผ่านไม่ถูกต้อง");
+                }
+                btn.innerText = oriText;
+                btn.disabled = false;
+            } else {
+                btn.innerText = "PROCESSING REGISTER...";
+                const payload = {
+                    action: "createUser",
+                    email: inputEmail,
+                    passwordHash: hashedInputPassword,
+                    fullName: document.getElementById("authFullName").value.trim(),
+                    status: "Active"
+                };
+                const fileInput = document.getElementById("authAvatarFile");
+                const file = fileInput.files[0];
+
+                const sendPayload = async (data) => {
+                    try {
+                        const response = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(data) });
+                        const result = await response.json();
+                        if(result.success) {
+                            alert("สมัครสมาชิกสำเร็จ!");
+                            currentUser = { UserID: result.data.userId, FullName: data.fullName, AvatarURL: result.data.avatarUrl };
+                            document.getElementById("authForm").reset();
+                            document.getElementById("authAvatarFileLabel").innerText = "PNG, JPG ขนาดไม่เกิน 2MB";
+                            toggleAuthMode(); 
+                            closeAuthForm();
+                            updateSessionUI();
+                            fetchNetworkData(); 
+                        } else {
+                            alert("ล้มเหลว: " + result.message);
+                        }
+                    } catch(e) {
+                        alert("Network Error: " + e.message);
+                    } finally {
+                        btn.innerText = oriText;
+                        btn.disabled = false;
+                    }
+                };
+
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        payload.fileBase64 = e.target.result.split(",")[1];
+                        payload.fileName = file.name;
+                        payload.mimeType = file.type;
+                        sendPayload(payload);
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    sendPayload(payload);
+                }
+            }
+        }
+
+        async function handleJournalSubmit(event) {
+            event.preventDefault();
+            if (!currentUser) return alert("โปรดเข้าสู่ระบบก่อนทำการบันทึกข้อมูลทริปใหม่");
+            
+            const btn = document.getElementById("journalSubmitBtn");
+            const oriText = btn.innerText;
+            btn.innerText = "UPLOADING TO DRIVE...";
+            btn.disabled = true;
+
+            const payload = {
+                action: "createJournal",
+                userId: currentUser.UserID,
+                tripTitle: document.getElementById("journalTitle").value,
+                travelDate: document.getElementById("journalDate").value,
+                location: document.getElementById("journalLocation").value,
+                story: document.getElementById("journalStory").value,
+                status: document.getElementById("journalStatus").value
+            };
+            const fileInput = document.getElementById("journalFile");
+            const file = fileInput.files[0];
+
+            const sendPayload = async (data) => {
+                try {
+                    const response = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(data) });
+                    const result = await response.json();
+                    if(result.success) {
+                        alert("อัปโหลดและบันทึกข้อมูลเรียบร้อยแล้ว!");
+                        document.getElementById("journalForm").reset();
+                        document.getElementById("journalFileLabel").innerText = "รอการเลือกรูปภาพ เอกสาร หรือตั๋วเดินทาง";
+                        closeJournalForm();
+                        fetchNetworkData();
+                    } else {
+                        alert("เกิดข้อผิดพลาด: " + result.message);
+                    }
+                } catch(e) {
+                    alert("Network Error: " + e.message);
+                } finally {
+                    btn.innerText = oriText;
+                    btn.disabled = false;
+                }
+            };
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    payload.fileBase64 = e.target.result.split(",")[1];
+                    payload.fileName = file.name;
+                    payload.mimeType = file.type;
+                    sendPayload(payload);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                sendPayload(payload);
+            }
+        }
+
+        function handleSearch() {
+            const query = document.getElementById("searchInput").value.toLowerCase();
+            const statusFilter = document.getElementById("statusFilter").value;
+            const filtered = dbJournals.filter(journal => {
+                const author = dbUsers.find(u => u.UserID === journal.UserID) || { FullName: "" };
+                const matchesSearch = journal.TripTitle.toLowerCase().includes(query) || journal.Location.toLowerCase().includes(query) || author.FullName.toLowerCase().includes(query);
+                const matchesStatus = statusFilter === "ALL" || journal.Status === statusFilter;
+                return matchesSearch && matchesStatus;
+            });
+            loadTableData(filtered);
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById("themeIcon");
+            html.classList.toggle("dark");
+            icon.setAttribute("data-lucide", html.classList.contains("dark") ? "moon" : "sun");
+            lucide.createIcons();
+        }
+
+        function toggleAuthView() {
+            if (currentUser) {
+                currentUser = null;
+                updateSessionUI();
+                loadTableData();
+                alert("ออกจากระบบเรียบร้อยแล้ว");
+            } else {
+                openAuthForm();
+            }
+        }
+
+        function updateSessionUI() {
+            const statusText = document.getElementById("authStatusText");
+            statusText.innerText = currentUser ? `OUT (${currentUser.FullName.split(' ')[0]})` : "ลงชื่อเข้าใช้";
+        }
+
+        function openJournalForm() { 
+            if (!currentUser) { alert("กรุณาลงชื่อเข้าใช้ก่อนบันทึกทริปใหม่"); return openAuthForm(); }
+            document.getElementById("journalOverlay").classList.remove("hidden"); document.body.style.overflow = 'hidden'; 
+        }
+        function closeJournalForm() { document.getElementById("journalOverlay").classList.add("hidden"); document.body.style.overflow = 'auto'; }
+        
+        function openAuthForm() { 
+            if(authMode === "REGISTER") toggleAuthMode(); 
+            document.getElementById("authOverlay").classList.remove("hidden"); document.body.style.overflow = 'hidden'; 
+        }
+        function closeAuthForm() { document.getElementById("authOverlay").classList.add("hidden"); document.body.style.overflow = 'auto'; }
+    </script>
+</body>
+</html>
